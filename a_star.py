@@ -11,7 +11,7 @@ temp = set()
 temp1 = set()
 for i in graph:
     temp.add(i[0])
-    temp.add(i[1])
+    temp1.add(i[1])  # Corrected to add elements to temp1
 nodes = temp.union(temp1)
 cost = dict()
 path = dict()
@@ -26,12 +26,27 @@ cost[start] = 0
 path[start] = start
 
 
-def a_star(graph, open, close, cost, current_nodes):
-    if current_nodes in open:
-        open.remove(current_nodes)
-    close.add(current_nodes)
+def a_star(graph, open, close, cost, current_node):
+    if current_node in open:
+        open.remove(current_node)
+    close.add(current_node)
     for i in graph:
-        if (i[0] == current_nodes & cost[i[0] + i[2] + i[3] < cost[i[1]]):
+        if i[0] == current_node and cost[i[0]] + i[2] + i[3] < cost[i[1]]:
             open.add(i[1])
-            cost[i[1]] = cost[i[0]+i[2]+i[3]]
-            path[i[1]] = path[i[0]]+'->'+i[1]
+            cost[i[1]] = cost[i[0]] + i[2] + i[3]  # Corrected cost calculation
+            path[i[1]] = path[i[0]] + '->' + i[1]  # Corrected path calculation
+    cost[current_node] = 999  # Moved this line outside the loop
+    small = min(cost, key=cost.get)
+    if small not in close:
+        a_star(graph, open, close, cost, small)
+
+
+open = {start}
+while open:
+    current = min(open, key=cost.get)
+    if current == goal:
+        break
+    a_star(graph, open, close, cost, current)
+
+print("Path:", path[goal])
+print("Cost:", cost[goal])
